@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
+    tools:context=".AgenteActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/consentsolicitados"
+        android:gravity="center_vertical|center_horizontal"
+        android:textStyle="bold"
+        android:textColor="@color/colorgris"
+        android:textSize="28dp"
+        android:typeface="serif"
+        android:background="@color/verdeoscuro"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="25dp"
+        android:orientation="horizontal"
+        android:background="@color/verdeclaro">
+
+        <TextView
+            android:id="@+id/otorgados"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:text="@string/otorgados"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/colorgris"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="onClick"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:gravity="center_vertical"
+            android:text="@string/barras"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/colornegro"/>
+
+        <TextView
+            android:id="@+id/pendientes"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:gravity="center_vertical"
+            android:text="@string/pendientes"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/colorgris"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="onClick"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:gravity="center_vertical"
+            android:text="@string/barras"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/colornegro"/>
+
+        <TextView
+            android:id="@+id/rechazados"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:gravity="center_vertical"
+            android:text="@string/rechazados"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/colorgris"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="onClick"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imagebienvenido"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="35dp"
+        android:src="@mipmap/bienvenidosanit"
+        android:visibility="visible"/>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/listaconsent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical">
+
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="10dp">
+
+        <Button
+            android:id="@+id/nuevasol"
+            android:layout_width="135dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="38dp"
+            android:background="@drawable/fondoverdeclaro"
+            android:text="@string/nuevasol"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:typeface="sans" />
+
+        <Button
+            android:id="@+id/cerrarsesion"
+            android:layout_width="135dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="38dp"
+            android:background="@drawable/fondoverdeclaro"
+            android:text="@string/cerrarsesion"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:typeface="sans" />
+
+    </RelativeLayout>
+</LinearLayout>

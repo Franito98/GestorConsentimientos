@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Gestor de Consentimientos</string>
+    <string name="prompt_usuario">Usuario</string>
+    <string name="prompt_password">DNI</string>
+    <string name="iniciar_sesion">Iniciar sesión</string>
+    <string name="registrarsetitulo">R e g í s t r a t e</string>
+    <string name="registrarse">Regístrate</string>
+    <string name="cerrarsesion">Cerrar sesión</string>
+    <string name="continuar">Continuar</string>
+    <string name="nuevasol">Nueva solicitud</string>
+    <string name="enviarsol">Enviar solicitud</string>
+    <string name="atras">Atrás</string>
+    <string name="derechos">Puede conocer sus derechos estipulados en el Reglamento General de Protección de Datos
+        en el siguiente enlace: https://www.aepd.es/es/derechos-y-deberes/conoce-tus-derechos</string>
+    <string name="consentimientos">C o n s e n t i m i e n t o s</string>
+    <string name="consentimiento">C o n s e n t i m i e n t o</string>
+    <string name="consentsolicitados">C o n s e n t i m i e n t o s\n s o l i c i t a d o s</string>
+    <string name="alertas">A l e r t a s</string>
+    <string name="nuevasoltitulo">N u e v a\n s o l i c i t u d</string>
+    <string name="como_ciudadano">Como ciudadano</string>
+    <string name="como_agente">Como agente solicitante</string>
+    <string name="otorgados">Otorgados</string>
+    <string name="pendientes">Pendientes</string>
+    <string name="rechazados">Rechazados</string>
+    <string name="barras">║</string>
+    <string name="todos">A todos</string>
+    <string name="uno">A uno</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="posponer">Posponer</string>
+    <string name="rechazar">Rechazar</string>
+
+</resources>
