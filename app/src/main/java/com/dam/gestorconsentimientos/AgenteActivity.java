@@ -207,16 +207,14 @@ public class AgenteActivity extends AppCompatActivity {
         LinearLayout layconsentimiento = new LinearLayout(this);
         layconsentimiento.setOrientation(LinearLayout.VERTICAL);
 
-        if(consentimiento.getStatus().equals(Consent.ConsentState.DRAFT)) {
-            layconsentimiento.setBackgroundColor(R.drawable.fondoamarillo);
-        } else {
-            if(consentimiento.getStatus().equals(Consent.ConsentState.REJECTED)) {
-                layconsentimiento.setBackgroundColor(R.drawable.fondorojo);
-            } else {
-                if(consentimiento.getStatus().equals(Consent.ConsentState.ACTIVE)) {
-                    layconsentimiento.setBackgroundColor(R.drawable.fondoazul);
-                }
-            }
+        if(consentimiento.getStatus().toString() == "DRAFT") {
+            layconsentimiento.setBackgroundColor(getResources().getColor(R.color.coloramarillo));
+        }
+        if(consentimiento.getStatus().toString() == "ACTIVE") {
+            layconsentimiento.setBackgroundColor(getResources().getColor(R.color.colorazul));
+        }
+        if(consentimiento.getStatus().toString() == "REJECTED") {
+            layconsentimiento.setBackgroundColor(getResources().getColor(R.color.colorrojoclaro));
         }
 
         LinearLayout.LayoutParams paramconsent = new LinearLayout.LayoutParams
