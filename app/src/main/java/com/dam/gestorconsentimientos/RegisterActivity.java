@@ -33,8 +33,8 @@ import static com.dam.gestorconsentimientos.Aplicacion.ctx;
 public class RegisterActivity extends AppCompatActivity {
 
     private Button atras;
-    EditText nombre, user, password, tarjsanitaria, tlf, hospital, departamento, codigo;
-    LinearLayout layouttarj, layouttlf, layouthosp, layoutdepart, layoutcod;
+    EditText nombre, user, password, dni, tarjsanitaria, tlf, hospital, departamento, codigo;
+    LinearLayout layoutdni, layouttarj, layouttlf, layouthosp, layoutdepart, layoutcod;
 
     Paciente paciente = new Paciente();
     Practicante practicante = new Practicante();
@@ -52,12 +52,14 @@ public class RegisterActivity extends AppCompatActivity {
         nombre = (EditText) findViewById(R.id.nombre);
         user = (EditText) findViewById(R.id.usuario);
         password = (EditText) findViewById(R.id.password);
+        dni = (EditText) findViewById(R.id.dni);
         tarjsanitaria = (EditText) findViewById(R.id.tarjsanitaria);
         tlf = (EditText) findViewById(R.id.telefono);
         hospital = (EditText) findViewById(R.id.hospital);
         departamento = (EditText) findViewById(R.id.departamento);
         codigo = (EditText) findViewById(R.id.codigo);
 
+        layoutdni = (LinearLayout) findViewById(R.id.layoutdni);
         layouttarj = (LinearLayout) findViewById(R.id.layouttarjsanitaria);
         layouttlf = (LinearLayout) findViewById(R.id.layouttelefono);
         layouthosp = (LinearLayout) findViewById(R.id.layouthospital);
@@ -117,13 +119,17 @@ public class RegisterActivity extends AppCompatActivity {
         else{
 
             Identifier id = new Identifier();
-            id.setId(password.getText().toString());
-            id.setSystemElement(new UriType("http://localhost:8080/TFGREST/agente/" + password.getText().toString()));
+            id.setId(dni.getText().toString());
+            id.setSystemElement(new UriType("http://localhost:8080/TFGREST/agente/" + dni.getText().toString()));
             practicante.addIdentifier(id);
 
             HumanName name = new HumanName();
             name.setText(nombre.getText().toString());
             practicante.addName(name);
+
+            StringDt contrasena = new StringDt();
+            contrasena.setValueAsString(password.getText().toString());
+            practicante.setContra(contrasena);
 
             StringDt usu = new StringDt();
             usu.setValueAsString(user.getText().toString());
@@ -202,7 +208,7 @@ public class RegisterActivity extends AppCompatActivity {
                         } else {
                             acceso = false;
                             Intent intent = new Intent(RegisterActivity.this, AgenteActivity.class);
-                            intent.putExtra("contra", password.getText().toString());
+                            intent.putExtra("login", user.getText().toString());
                             startActivity(intent);
                         }
                     }
@@ -234,6 +240,7 @@ public class RegisterActivity extends AppCompatActivity {
                 password.setHint("DNI");
                 layouttarj.setVisibility(View.VISIBLE);
                 layouttlf.setVisibility(View.VISIBLE);
+                layoutdni.setVisibility(View.GONE);
                 layouthosp.setVisibility(View.GONE);
                 layoutdepart.setVisibility(View.GONE);
                 layoutcod.setVisibility(View.GONE);
@@ -244,6 +251,7 @@ public class RegisterActivity extends AppCompatActivity {
                 password.setHint("Contraseña");
                 layouttarj.setVisibility(View.GONE);
                 layouttlf.setVisibility(View.GONE);
+                layoutdni.setVisibility(View.VISIBLE);
                 layouthosp.setVisibility(View.VISIBLE);
                 layoutdepart.setVisibility(View.VISIBLE);
                 layoutcod.setVisibility(View.VISIBLE);

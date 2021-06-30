@@ -40,8 +40,10 @@ public class LoginActivity extends AppCompatActivity {
 
         login = (Button) findViewById(R.id.login);
         register = (Button) findViewById(R.id.register);
+
         usuario = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
+
         botonciud = (RadioButton) findViewById(R.id.buttonciud);
         botonagente = (RadioButton) findViewById(R.id.buttonagente);
 
@@ -130,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                                 } else {
                                     acceso = false;
                                     Intent intent = new Intent(LoginActivity.this, AgenteActivity.class);
-                                    intent.putExtra("contra", password.getText().toString());
+                                    intent.putExtra("login", usuario.getText().toString());
                                     startActivity(intent);
                                 }
                             }

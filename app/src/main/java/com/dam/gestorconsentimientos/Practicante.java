@@ -24,6 +24,13 @@ public class Practicante extends Practitioner {
     private StringDt usu;
 
     /** * This is a basic extension, with a DataType value (in this case, StringDt) */
+    //Atributo extendido contraseña
+    @Child(name = "contra")
+    @Description(shortDefinition = "Contiene la contraseña que usa el agente")
+    @Extension(url = "localhost:8080/extensión/practitioner/contra", isModifier = false, definedLocally = true)
+    private StringDt contra;
+
+    /** * This is a basic extension, with a DataType value (in this case, StringDt) */
     //Atributo extendido Hospital
     @Child(name = "hospital")
     @Description(shortDefinition = "Contiene el nombre del hospital en el que trabaja el agente")
@@ -65,6 +72,10 @@ public class Practicante extends Practitioner {
     public void setUsu(StringDt usu) {
         this.usu = usu;
     }
+
+    public StringDt getContra() { return contra; }
+
+    public void setContra(StringDt contra) { this.contra = contra; }
 
     public StringDt getHospital() {
         return hospital;

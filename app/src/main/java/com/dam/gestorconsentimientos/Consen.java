@@ -17,6 +17,20 @@ public class Consen extends Consent {
     private static final long serialVersionUID = 1L;
 
     /** * This is a basic extension, with a DataType value (in this case, StringDt) */
+    //Atributo extendido Usudatos
+    @Child(name = "usudatos")
+    @Description(shortDefinition = "Indica el agente que usará los datos")
+    @Extension(url = "localhost:8080/extensión/consent/usudatos", isModifier = false, definedLocally = true)
+    private StringDt usudatos;
+
+    /** * This is a basic extension, with a DataType value (in this case, StringDt) */
+    //Atributo extendido Ubidatos
+    @Child(name = "ubidatos")
+    @Description(shortDefinition = "Indica la ubicación donde se encuentran los satos")
+    @Extension(url = "localhost:8080/extensión/consent/ubidatos", isModifier = false, definedLocally = true)
+    private StringDt ubidatos;
+
+    /** * This is a basic extension, with a DataType value (in this case, StringDt) */
     //Atributo extendido Datos
     @Child(name = "datos")
     @Description(shortDefinition = "Indica qué datos se solicitan en el consentimiento")
@@ -45,11 +59,19 @@ public class Consen extends Consent {
     private StringDt cond;
 
     /** * This is a basic extension, with a DataType value (in this case, StringDt) */
-    //Atributo extendido Alerta
-    @Child(name = "alerta")
+    //Atributo extendido Aviso
+    @Child(name = "aviso")
     @Description(shortDefinition = "Indica si es un consentimiento nuevo o no para el ciudadano")
-    @Extension(url = "localhost:8080/extensión/consent/alerta", isModifier = false, definedLocally = true)
-    private BooleanDt alerta;
+    @Extension(url = "localhost:8080/extensión/consent/aviso", isModifier = false, definedLocally = true)
+    private BooleanDt aviso;
+
+    public StringDt getUsudatos() { return usudatos; }
+
+    public void setUsudatos(StringDt usudatos) { this.usudatos = usudatos; }
+
+    public StringDt getUbidatos() { return ubidatos; }
+
+    public void setUbidatos(StringDt ubidatos) { this.ubidatos = ubidatos; }
 
     public StringDt getDatos() {
         return datos;
@@ -83,11 +105,11 @@ public class Consen extends Consent {
         this.cond = cond;
     }
 
-    public BooleanDt getAlerta() {
-        return alerta;
+    public BooleanDt getAviso() {
+        return aviso;
     }
 
-    public void setAlerta(BooleanDt alerta) {
-        this.alerta = alerta;
+    public void setAviso(BooleanDt aviso) {
+        this.aviso = aviso;
     }
 }

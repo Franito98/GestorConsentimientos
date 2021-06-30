@@ -30,14 +30,21 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.hl7.fhir.instance.model.api.IAnyResource;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Consent;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.utilities.DateTimeUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import ca.uhn.fhir.model.primitive.BooleanDt;
 import ca.uhn.fhir.model.primitive.StringDt;
@@ -49,7 +56,7 @@ public class AgenteActivity extends AppCompatActivity {
     ScrollView scrollView;
     LinearLayout lay;
 
-    String contra;
+    String login;
 
     String URL;
     ProgressDialog dlg;
@@ -66,7 +73,7 @@ public class AgenteActivity extends AppCompatActivity {
         nuevasol = (Button) findViewById(R.id.nuevasol);
 
         Intent intent = getIntent();
-        contra = intent.getExtras().getString("contra");
+        login = intent.getExtras().getString("login");
 
         cerrar.setOnClickListener(new View.OnClickListener ()
         {
@@ -81,7 +88,7 @@ public class AgenteActivity extends AppCompatActivity {
             public void onClick(View v)
             {
                 Intent intent = new Intent(AgenteActivity.this, SolicitudActivity.class);
-                intent.putExtra("contra", contra);
+                intent.putExtra("login", login);
                 startActivity(intent);
             }
         });
@@ -95,21 +102,21 @@ public class AgenteActivity extends AppCompatActivity {
         switch (view.getId()) {
 
             case R.id.otorgados:
-                URL = "http://192.168.1.108:8080/TFGREST/agente/" + contra + "?estado=active";
+                URL = "http://192.168.1.108:8080/TFGREST/agente/" + login + "?estado=active";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos aceptados",
                         "Por favor, espere...", true);
                 break;
 
             case R.id.pendientes:
-                URL = "http://192.168.1.108:8080/TFGREST/agente/" + contra + "?estado=draft";
+                URL = "http://192.168.1.108:8080/TFGREST/agente/" + login + "?estado=draft";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos pendientes",
                         "Por favor, espere...", true);
                 break;
 
             case R.id.rechazados:
-                URL = "http://192.168.1.108:8080/TFGREST/agente/" + contra + "?estado=rejected";
+                URL = "http://192.168.1.108:8080/TFGREST/agente/" + login + "?estado=rejected";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos rechazados",
                         "Por favor, espere...", true);
@@ -167,13 +174,23 @@ public class AgenteActivity extends AppCompatActivity {
         try {
 
             JSONArray extension = consentimiento.getJSONArray("extension");
-            consen.setDatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
-            consen.setAccion(new StringDt(extension.getJSONObject(1).getString("valueString")));
-            consen.setDuracion(new StringDt(extension.getJSONObject(2).getString("valueString")));
-            consen.setCond(new StringDt(extension.getJSONObject(3).getString("valueString")));
-            consen.setAlerta(new BooleanDt(extension.getJSONObject(4).getBoolean("valueBoolean")));
 
-            consen.addIdentifier((Identifier) new Identifier().setId(consentimiento.getJSONArray("identifier").getJSONObject(0).getString("id")));
+            consen.setUsudatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
+            consen.setUbidatos(new StringDt(extension.getJSONObject(1).getString("valueString")));
+            consen.setDatos(new StringDt(extension.getJSONObject(2).getString("valueString")));
+            consen.setAccion(new StringDt(extension.getJSONObject(3).getString("valueString")));
+            consen.setDuracion(new StringDt(extension.getJSONObject(4).getString("valueString")));
+            consen.setCond(new StringDt(extension.getJSONObject(5).getString("valueString")));
+            consen.setAviso(new BooleanDt(extension.getJSONObject(6).getBoolean("valueBoolean")));
+
+            Identifier identifier = new Identifier();
+            identifier.setId(consentimiento.getJSONArray("identifier")
+                    .getJSONObject(0).getString("id"));
+            identifier.setSystem(consentimiento.getJSONArray("identifier")
+                    .getJSONObject(0).getString("system"));
+            identifier.setValue(consentimiento.getJSONArray("identifier")
+                    .getJSONObject(0).getString("value"));
+            consen.addIdentifier(identifier);
 
             if(consentimiento.getString("status").equals("draft")) {
                 consen.setStatus(Consent.ConsentState.DRAFT);
@@ -186,15 +203,25 @@ public class AgenteActivity extends AppCompatActivity {
                     }
                 }
             }
-
             consen.setScope(new CodeableConcept().setText(consentimiento.getJSONObject("scope").getString("text")));
-            String cat = consentimiento.getJSONArray("category").getString(0);
-            consen.addCategory().setText(cat.substring(9,cat.length()-2));
-            consen.setPatient(new Reference().setReference(consentimiento.getJSONObject("patient").getString("reference")));
-            String usu = consentimiento.getJSONArray("performer").getString(0);
-            consen.addPerformer(new Reference().setReference(usu.substring(14,usu.length()-2)));
-            String ubi = consentimiento.getJSONArray("organization").getString(0);
-            consen.addOrganization(new Reference().setReference(ubi.substring(14,ubi.length()-2)));
+            consen.addCategory().setText(consentimiento.getJSONArray("category").getJSONObject(0).getString("text"));
+
+            Reference reference = new Reference();
+            reference.setReference(consentimiento.getJSONObject("patient").getString("reference"));
+            reference.setType(consentimiento.getJSONObject("patient").getString("type"));
+            reference.setIdentifier(new Identifier().setValue(consentimiento.getJSONObject("patient")
+                    .getJSONObject("identifier").getString("value")));
+            consen.setPatient(reference);
+
+            consen.setId(consentimiento.getString("id"));
+
+            //String cat = consentimiento.getJSONArray("category").getJSONObject(0).getString("text");
+            //consen.addCategory().setText(cat.substring(9,cat.length()-2));
+            //consen.setPatient(new Reference().setReference(consentimiento.getJSONObject("patient").getString("reference")));
+            //String usu = consentimiento.getJSONArray("performer").getString(0);
+            //consen.addPerformer(new Reference().setReference(usu.substring(14,usu.length()-2)));
+            //String ubi = consentimiento.getJSONArray("organization").getString(0);
+            //consen.addOrganization(new Reference().setReference(ubi.substring(14,ubi.length()-2)));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -222,7 +249,7 @@ public class AgenteActivity extends AppCompatActivity {
         paramconsent.setMargins(10,50,10,0);
 
         TextView textViewusu = new TextView(this);
-        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getPerformerFirstRep().getReference());
+        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getUsudatos().getValue());
         usu.setSpan(new UnderlineSpan(), 3, 20, 0);
         usu.setSpan(new StyleSpan(Typeface.BOLD), 0, usu.length(), 0);
         usu.setSpan(new AbsoluteSizeSpan(15, true),0, usu.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -249,7 +276,7 @@ public class AgenteActivity extends AppCompatActivity {
         textViewaccion.setPadding(10,15,10,0);
 
         TextView textViewdest = new TextView(this);
-        SpannableString dest = new SpannableString("   Destinatario: " + consentimiento.getPatient().getReference());
+        SpannableString dest = new SpannableString("   Destinatario: " + consentimiento.getPatient().getIdentifier().getValue());
         dest.setSpan(new UnderlineSpan(), 3, 16, 0);
         dest.setSpan(new StyleSpan(Typeface.BOLD), 0, dest.length(), 0);
         dest.setSpan(new AbsoluteSizeSpan(15, true),0,dest.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -270,7 +297,7 @@ public class AgenteActivity extends AppCompatActivity {
                 Intent intent = new Intent(AgenteActivity.this, InfosolActivity.class);
                 intent.putExtra("consentimiento", consentimiento);
                 intent.putExtra("tipo", "agente");
-                intent.putExtra("acceso", contra);
+                intent.putExtra("acceso", login);
                 startActivity(intent);
             }
         });

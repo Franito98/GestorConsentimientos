@@ -150,6 +150,36 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/layoutdni"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="left"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="¤"
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorhuevo"/>
+
+                <EditText
+                    android:id="@+id/dni"
+                    android:layout_width="280dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:hint="DNI"
+                    android:inputType="textPersonName"
+                    android:selectAllOnFocus="true"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/layouttarjsanitaria"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

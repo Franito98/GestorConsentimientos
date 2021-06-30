@@ -92,11 +92,16 @@ public class SolicitudActivity extends AppCompatActivity {
         Identifier id = new Identifier();
         id.setId(solicitante.getText().toString());
         id.setSystemElement(new UriType("http://localhost:8080/TFGREST/consentimiento/" + contra));
+        id.setValue(contra);
         consentimiento.addIdentifier(id);
 
-        consentimiento.addPerformer(new Reference().setReference(usudatos.getText().toString()));
+        StringDt usuariodatos = new StringDt();
+        usuariodatos.setValueAsString(usudatos.getText().toString());
+        consentimiento.setUsudatos(usuariodatos);
 
-        consentimiento.addOrganization(new Reference().setReference(ubidatos.getText().toString()));
+        StringDt hospital = new StringDt();
+        hospital.setValueAsString(ubidatos.getText().toString());
+        consentimiento.setUbidatos(hospital);
 
         consentimiento.addCategory().setText(catdatos.getText().toString());
 
@@ -109,9 +114,13 @@ public class SolicitudActivity extends AppCompatActivity {
         consentimiento.setAccion(accionrealizar);
 
         if (ciud.getText().toString().isEmpty()) {
-            consentimiento.setPatient(new Reference().setReference("todos"));
+            consentimiento.setPatient(new Reference("todos"));
         } else {
-            consentimiento.setPatient(new Reference().setReference(ciud.getText().toString()));
+            Reference referencia = new Reference();
+            referencia.setReference("http://hapi.fhir.org/Patient");
+            referencia.setType("Patient");
+            referencia.setIdentifier(new Identifier().setValue(ciud.getText().toString()));
+            consentimiento.setPatient(referencia);
         }
 
         consentimiento.setScope(new CodeableConcept().setText(motivo.getText().toString()));
@@ -127,7 +136,7 @@ public class SolicitudActivity extends AppCompatActivity {
 
         consentimiento.setStatus(Consent.ConsentState.DRAFT);
 
-        consentimiento.setAlerta(new BooleanDt(Boolean.TRUE));
+        consentimiento.setAviso(new BooleanDt(Boolean.TRUE));
 
         try{
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL,
@@ -181,7 +190,7 @@ public class SolicitudActivity extends AppCompatActivity {
                 }
             });
             request.setRetryPolicy(new DefaultRetryPolicy(
-                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 3,
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 5,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             // add the request object to the queue to be executed

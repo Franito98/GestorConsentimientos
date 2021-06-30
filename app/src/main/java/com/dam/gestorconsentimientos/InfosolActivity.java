@@ -101,12 +101,12 @@ public class InfosolActivity extends AppCompatActivity {
         } else{
             solicitante.setText(consentimiento.getIdentifier().get(0).getId());
         }
-        usudatos.setText(consentimiento.getPerformerFirstRep().getReference());
-        ubidatos.setText(consentimiento.getOrganizationFirstRep().getReference());
+        usudatos.setText(consentimiento.getUsudatos().getValue());
+        ubidatos.setText(consentimiento.getUbidatos().getValue());
         catdatos.setText(consentimiento.getCategoryFirstRep().getText());
         datos.setText(consentimiento.getDatos().getValue());
         accion.setText(consentimiento.getAccion().getValue());
-        dest.setText(consentimiento.getPatient().getReference());
+        dest.setText(consentimiento.getPatient().getIdentifier().getValue());
         motivo.setText(consentimiento.getScope().getText());
         duracion.setText(consentimiento.getDuracion().getValue());
         cond.setText(consentimiento.getCond().getValue());
@@ -130,7 +130,7 @@ public class InfosolActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Error en objeto JSON de Consentimiento", Toast.LENGTH_SHORT).show();
         }
 
-        if(consentimiento.getAlerta().getValue() == true) {
+        if(consentimiento.getAviso().getValue() == true) {
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.108:8080/TFGREST/ciud/consentimiento/actualizaralerta", objeto,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -329,8 +329,9 @@ public class InfosolActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(),
                                             "Consentimiento eliminado", Toast.LENGTH_SHORT).show();
 
+                                    System.out.println(consentimiento.getIdentifier().get(0).getId());
                                     Intent intent = new Intent(InfosolActivity.this, AgenteActivity.class);
-                                    intent.putExtra("contra", consentimiento.getIdentifier().get(0).getId());
+                                    intent.putExtra("contra", consentimiento.getIdentifier().get(0).getValue());
                                     startActivity(intent);
                                 }
                             }

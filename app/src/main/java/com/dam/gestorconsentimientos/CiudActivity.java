@@ -125,7 +125,8 @@ public class CiudActivity extends AppCompatActivity {
                                 for (int i = 0; i < consentimientos.length(); i++) {
                                     JSONObject consent = consentimientos.getJSONObject(i);
                                     Consen consen = generarconsentimiento(consent);
-                                    obteneragente(consen.getIdentifier().get(0).getId());
+                                    System.out.println(consen.toString());
+                                    obteneragente(consen.getIdentifier().get(0).getValue());
                                     new CountDownTimer(500, 100) {
 
                                         @Override
@@ -171,13 +172,23 @@ public class CiudActivity extends AppCompatActivity {
         try {
 
             JSONArray extension = consentimiento.getJSONArray("extension");
-            consen.setDatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
-            consen.setAccion(new StringDt(extension.getJSONObject(1).getString("valueString")));
-            consen.setDuracion(new StringDt(extension.getJSONObject(2).getString("valueString")));
-            consen.setCond(new StringDt(extension.getJSONObject(3).getString("valueString")));
-            consen.setAlerta(new BooleanDt(extension.getJSONObject(4).getBoolean("valueBoolean")));
 
-            consen.addIdentifier((Identifier) new Identifier().setId(consentimiento.getJSONArray("identifier").getJSONObject(0).getString("id")));
+            consen.setUsudatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
+            consen.setUbidatos(new StringDt(extension.getJSONObject(1).getString("valueString")));
+            consen.setDatos(new StringDt(extension.getJSONObject(2).getString("valueString")));
+            consen.setAccion(new StringDt(extension.getJSONObject(3).getString("valueString")));
+            consen.setDuracion(new StringDt(extension.getJSONObject(4).getString("valueString")));
+            consen.setCond(new StringDt(extension.getJSONObject(5).getString("valueString")));
+            consen.setAviso(new BooleanDt(extension.getJSONObject(6).getBoolean("valueBoolean")));
+
+            Identifier identifier = new Identifier();
+            identifier.setId(consentimiento.getJSONArray("identifier")
+                    .getJSONObject(0).getString("id"));
+            identifier.setSystem(consentimiento.getJSONArray("identifier")
+                    .getJSONObject(0).getString("system"));
+            identifier.setValue(consentimiento.getJSONArray("identifier")
+                    .getJSONObject(0).getString("value"));
+            consen.addIdentifier(identifier);
 
             if(consentimiento.getString("status").equals("draft")) {
                 consen.setStatus(Consent.ConsentState.DRAFT);
@@ -190,7 +201,19 @@ public class CiudActivity extends AppCompatActivity {
                     }
                 }
             }
+            consen.setScope(new CodeableConcept().setText(consentimiento.getJSONObject("scope").getString("text")));
+            consen.addCategory().setText(consentimiento.getJSONArray("category").getJSONObject(0).getString("text"));
 
+            Reference reference = new Reference();
+            reference.setReference(consentimiento.getJSONObject("patient").getString("reference"));
+            reference.setType(consentimiento.getJSONObject("patient").getString("type"));
+            reference.setIdentifier(new Identifier().setValue(consentimiento.getJSONObject("patient")
+                    .getJSONObject("identifier").getString("value")));
+            consen.setPatient(reference);
+
+            consen.setId(consentimiento.getString("id"));
+
+            /*
             consen.setScope(new CodeableConcept().setText(consentimiento.getJSONObject("scope").getString("text")));
             String cat = consentimiento.getJSONArray("category").getString(0);
             consen.addCategory().setText(cat.substring(9,cat.length()-2));
@@ -199,6 +222,7 @@ public class CiudActivity extends AppCompatActivity {
             consen.addPerformer(new Reference().setReference(usu.substring(14,usu.length()-2)));
             String ubi = consentimiento.getJSONArray("organization").getString(0);
             consen.addOrganization(new Reference().setReference(ubi.substring(14,ubi.length()-2)));
+*/
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -270,7 +294,7 @@ public class CiudActivity extends AppCompatActivity {
         textViewsol.setPadding(10,10,10,0);
 
         TextView textViewusu = new TextView(this);
-        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getPerformerFirstRep().getReference());
+        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getUsudatos().getValue());
         usu.setSpan(new UnderlineSpan(), 3, 20, 0);
         usu.setSpan(new StyleSpan(Typeface.BOLD), 0, usu.length(), 0);
         usu.setSpan(new AbsoluteSizeSpan(15, true),0, usu.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
