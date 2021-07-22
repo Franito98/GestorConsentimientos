@@ -30,20 +30,6 @@ public class Paciente extends Patient {
     @Extension(url = "localhost:8080/extensión/patient/tarjsanitaria", isModifier = false, definedLocally = true)
     private IntegerDt tarjsanitaria;
 
-    /** * This is a basic extension, with a DataType value (in this case, IntegerDt) */
-    /*
-     * Usaremos un código para indicar si ha habido algún problema en la obtención
-     * del ciudadano:
-     *  -200 --> indica que se ha obtenido correctamente
-     *  -300 --> indica que el usuario con el DNI aportado no está registrado
-     *  -400 --> indica que el DNI con el que se quiere acceder no existe
-     */
-    //Atributo extendido Código del mensaje
-    @Child(name = "codmensaje")
-    @Description(shortDefinition = "Contiene un código sobre la petición del cliente")
-    @Extension(url = "localhost:8080/extensión/patient/codmensaje", isModifier = true, definedLocally = true)
-    private IntegerDt codmensaje;
-
     public StringDt getUsu() {
         return usu;
     }
@@ -60,11 +46,4 @@ public class Paciente extends Patient {
         this.tarjsanitaria = tarjsanitaria;
     }
 
-    public IntegerDt getCodmensaje() {
-        return codmensaje;
-    }
-
-    public void setCodmensaje(IntegerDt codmensaje) {
-        this.codmensaje = codmensaje;
-    }
 }

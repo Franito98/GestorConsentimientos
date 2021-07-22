@@ -32,6 +32,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.hl7.fhir.instance.model.api.IAnyResource;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Consent;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
@@ -59,7 +60,11 @@ public class AgenteActivity extends AppCompatActivity {
     String login;
 
     String URL;
+    String URL2 = "http://192.168.1.108:8080/TFGREST/agente/hospital/";
     ProgressDialog dlg;
+
+    String hosp;
+    String action;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +146,7 @@ public class AgenteActivity extends AppCompatActivity {
                                 for (int i = 0; i < consentimientos.length(); i++) {
                                     JSONObject consent = consentimientos.getJSONObject(i);
                                     Consen consen = generarconsentimiento(consent);
+                                    consen = añadirhospital(consen);
                                     añadirconsen(consen);
                                 }
                             }
@@ -175,14 +181,12 @@ public class AgenteActivity extends AppCompatActivity {
 
             JSONArray extension = consentimiento.getJSONArray("extension");
 
-            consen.setUsudatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
-            consen.setUbidatos(new StringDt(extension.getJSONObject(1).getString("valueString")));
-            consen.setDatos(new StringDt(extension.getJSONObject(2).getString("valueString")));
-            consen.setAccion(new StringDt(extension.getJSONObject(3).getString("valueString")));
-            consen.setDuracion(new StringDt(extension.getJSONObject(4).getString("valueString")));
-            consen.setCond(new StringDt(extension.getJSONObject(5).getString("valueString")));
-            consen.setAviso(new BooleanDt(extension.getJSONObject(6).getBoolean("valueBoolean")));
+            consen.setDatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
+            consen.setDuracion(new StringDt(extension.getJSONObject(1).getString("valueString")));
+            consen.setCond(new StringDt(extension.getJSONObject(2).getString("valueString")));
+            consen.setAviso(new BooleanDt(extension.getJSONObject(3).getBoolean("valueBoolean")));
 
+            /*
             Identifier identifier = new Identifier();
             identifier.setId(consentimiento.getJSONArray("identifier")
                     .getJSONObject(0).getString("id"));
@@ -191,6 +195,7 @@ public class AgenteActivity extends AppCompatActivity {
             identifier.setValue(consentimiento.getJSONArray("identifier")
                     .getJSONObject(0).getString("value"));
             consen.addIdentifier(identifier);
+             */
 
             if(consentimiento.getString("status").equals("draft")) {
                 consen.setStatus(Consent.ConsentState.DRAFT);
@@ -206,12 +211,62 @@ public class AgenteActivity extends AppCompatActivity {
             consen.setScope(new CodeableConcept().setText(consentimiento.getJSONObject("scope").getString("text")));
             consen.addCategory().setText(consentimiento.getJSONArray("category").getJSONObject(0).getString("text"));
 
+            Reference refprac = new Reference();
+            refprac.setReference(consentimiento.getJSONArray("performer").getJSONObject(0).getString("reference"));
+            refprac.setType(consentimiento.getJSONArray("performer").getJSONObject(0).getString("type"));
+            refprac.setIdentifier(new Identifier().setValue(consentimiento.getJSONArray("performer").getJSONObject(0)
+                    .getJSONObject("identifier").getString("value")));
+            consen.addPerformer(refprac);
+
             Reference reference = new Reference();
             reference.setReference(consentimiento.getJSONObject("patient").getString("reference"));
             reference.setType(consentimiento.getJSONObject("patient").getString("type"));
             reference.setIdentifier(new Identifier().setValue(consentimiento.getJSONObject("patient")
                     .getJSONObject("identifier").getString("value")));
             consen.setPatient(reference);
+
+            CodeableConcept codeaccion = new CodeableConcept();
+            if(consentimiento.getJSONObject("provision").getJSONArray("action")
+                    .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("access")){
+                Coding cod = new Coding();
+                cod.setCode("access");
+                codeaccion.addCoding(cod);
+            } else {
+                if(consentimiento.getJSONObject("provision").getJSONArray("action")
+                        .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("use")){
+                    Coding cod = new Coding();
+                    cod.setCode("use");
+                    codeaccion.addCoding(cod);
+                } else {
+                    if (consentimiento.getJSONObject("provision").getJSONArray("action")
+                            .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("correct")){
+                        Coding cod = new Coding();
+                        cod.setCode("correct");
+                        codeaccion.addCoding(cod);
+                    } else {
+                        if (consentimiento.getJSONObject("provision").getJSONArray("action")
+                                .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("disclose")){
+                            Coding cod = new Coding();
+                            cod.setCode("disclose");
+                            codeaccion.addCoding(cod);
+                        }
+                    }
+                }
+            }
+            Consent.provisionComponent provision = new Consent.provisionComponent();
+            provision.addAction(codeaccion);
+
+            Reference refusudatos = new Reference();
+            refusudatos.setReference("http://hapi.fhir.org/Practitioner");
+            refusudatos.setType("Practitioner");
+            refusudatos.setIdentifier(new Identifier().setValue(consentimiento.getJSONObject("provision")
+                    .getJSONArray("actor").getJSONObject(0).getJSONObject("reference")
+                    .getJSONObject("identifier").getString("value")));
+            Consent.provisionActorComponent actor = new Consent.provisionActorComponent();
+            actor.setReference(refusudatos);
+            provision.addActor(actor);
+
+            consen.setProvision(provision);
 
             consen.setId(consentimiento.getString("id"));
 
@@ -227,6 +282,42 @@ public class AgenteActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return consen;
+    }
+
+    public Consen añadirhospital(Consen consentimiento){
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL2+login, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dlg.dismiss();
+                        try {
+
+                            hosp = (String) response.get("hospital");
+                            consentimiento.getOrganizationFirstRep().setDisplay(hosp);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        VolleyLog.v("Response:%n %s", response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dlg.dismiss();
+                VolleyLog.e("Error: ", error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        "No se ha recibido respuesta", Toast.LENGTH_SHORT).show();
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 3,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // add the request object to the queue to be executed
+        Aplicacion.getInstance().getRequestQueue().add(request);
+
+        return consentimiento;
     }
 
     public void añadirconsen(Consen consentimiento){
@@ -249,7 +340,8 @@ public class AgenteActivity extends AppCompatActivity {
         paramconsent.setMargins(10,50,10,0);
 
         TextView textViewusu = new TextView(this);
-        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getUsudatos().getValue());
+        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getProvision().getActor().get(0)
+                .getReference().getIdentifier().getValue());
         usu.setSpan(new UnderlineSpan(), 3, 20, 0);
         usu.setSpan(new StyleSpan(Typeface.BOLD), 0, usu.length(), 0);
         usu.setSpan(new AbsoluteSizeSpan(15, true),0, usu.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -267,7 +359,22 @@ public class AgenteActivity extends AppCompatActivity {
         textViewdatos.setPadding(10,15,10,0);
 
         TextView textViewaccion = new TextView(this);
-        SpannableString accion = new SpannableString("   Acción a realizar: " + consentimiento.getAccion().getValue());
+        if(consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "access"){
+            action = "Acceso";
+        } else {
+            if(consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "use"){
+                action = "Lectura";
+            } else {
+                if (consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "correct"){
+                    action = "Modificación";
+                } else {
+                    if (consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "disclose"){
+                        action = "Envío";
+                    }
+                }
+            }
+        }
+        SpannableString accion = new SpannableString("   Acción a realizar: " + action);
         accion.setSpan(new UnderlineSpan(), 3, 21, 0);
         accion.setSpan(new StyleSpan(Typeface.BOLD), 0, accion.length(), 0);
         accion.setSpan(new AbsoluteSizeSpan(15, true),0,accion.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);

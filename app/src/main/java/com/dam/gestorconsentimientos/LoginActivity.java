@@ -31,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
     Boolean acceso = false;
     String tipo = "ciud";
     String pw = "dni";
-    JSONArray extension;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,9 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                         dlg.dismiss();
                         try {
 
-                            extension = response.getJSONArray("modifierExtension");
-                            JSONObject extcod = extension.getJSONObject(0);
-                            Integer cod = extcod.getInt("valueInteger");
+                            Integer cod = (Integer) response.get("codigo");
 
                             if (cod == 400) {
                                 Toast.makeText(getApplicationContext(),
@@ -104,9 +101,8 @@ public class LoginActivity extends AppCompatActivity {
                                     acceso = false;
                                 } else {
                                     if (cod == 200) {
-                                        extension = response.getJSONArray("extension");
-                                        JSONObject extusu = extension.getJSONObject(0);
-                                        String usu = extusu.getString("valueString");
+
+                                        String usu = (String) response.get("usu");
 
                                         if (usuario.getText().toString().equals(usu)) {
                                             Toast.makeText(getApplicationContext(),

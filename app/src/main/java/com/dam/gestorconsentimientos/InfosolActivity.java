@@ -23,6 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Consent;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,6 +49,7 @@ public class InfosolActivity extends AppCompatActivity {
     Consen consentimiento;
     String tipo;
     String acceso;
+    String name;
 
     ScrollView scroll;
     RelativeLayout botonesagente;
@@ -93,19 +95,35 @@ public class InfosolActivity extends AppCompatActivity {
         acceso = intent.getExtras().getString("acceso");
 
         if(tipo.equals("ciud")){
-            solicitante.setText(intent.getExtras().getString("agente"));
+            solicitante.setText(intent.getExtras().getString("sol"));
             botonesagente.setVisibility(View.GONE);
             botonesciud.setVisibility(View.VISIBLE);
-            scroll.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 735));
+            LinearLayout.LayoutParams lay = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 735);
+            lay.setMargins(0,25,0,0);
+            scroll.setLayoutParams(lay);
         } else{
-            solicitante.setText(consentimiento.getIdentifier().get(0).getId());
+            solicitante.setText(consentimiento.getPerformer().get(0).getIdentifier().getValue());
         }
-        usudatos.setText(consentimiento.getUsudatos().getValue());
-        ubidatos.setText(consentimiento.getUbidatos().getValue());
+        usudatos.setText(intent.getExtras().getString("agente"));
+        ubidatos.setText(consentimiento.getOrganizationFirstRep().getDisplay());
         catdatos.setText(consentimiento.getCategoryFirstRep().getText());
         datos.setText(consentimiento.getDatos().getValue());
-        accion.setText(consentimiento.getAccion().getValue());
+        if(consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode().equals("access")){
+            accion.setText("Acceso");
+        } else {
+            if(consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode().equals("use")){
+                accion.setText("Lectura");
+            } else {
+                if (consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode().equals("correct")){
+                    accion.setText("Modificación");
+                } else {
+                    if (consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode().equals("disclose")){
+                        accion.setText("Envío");
+                    }
+                }
+            }
+        }
         dest.setText(consentimiento.getPatient().getIdentifier().getValue());
         motivo.setText(consentimiento.getScope().getText());
         duracion.setText(consentimiento.getDuracion().getValue());
@@ -329,9 +347,8 @@ public class InfosolActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(),
                                             "Consentimiento eliminado", Toast.LENGTH_SHORT).show();
 
-                                    System.out.println(consentimiento.getIdentifier().get(0).getId());
                                     Intent intent = new Intent(InfosolActivity.this, AgenteActivity.class);
-                                    intent.putExtra("contra", consentimiento.getIdentifier().get(0).getValue());
+                                    intent.putExtra("login", acceso);
                                     startActivity(intent);
                                 }
                             }
@@ -360,7 +377,7 @@ public class InfosolActivity extends AppCompatActivity {
 
     public void onClickder (View view) {
         Intent intentatras = new Intent(InfosolActivity.this, AgenteActivity.class);
-        intentatras.putExtra("contra", acceso);
+        intentatras.putExtra("login", acceso);
         startActivity(intentatras);
     }
 }

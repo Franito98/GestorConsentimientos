@@ -30,6 +30,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Consent;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
@@ -49,10 +50,20 @@ public class CiudActivity extends AppCompatActivity {
     private Button salir;
 
     String dni;
-    String name;
+    String sol;
+    String usuario;
+    String nombre;
+
+    String agente;
 
     String URL;
+    String URL2 = "http://192.168.1.108:8080/TFGREST/agente/hospital/";
     ProgressDialog dlg;
+
+    String hosp;
+    String action;
+
+    Consen con;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,8 +136,16 @@ public class CiudActivity extends AppCompatActivity {
                                 for (int i = 0; i < consentimientos.length(); i++) {
                                     JSONObject consent = consentimientos.getJSONObject(i);
                                     Consen consen = generarconsentimiento(consent);
-                                    System.out.println(consen.toString());
-                                    obteneragente(consen.getIdentifier().get(0).getValue());
+                                    obtenerusuario(consen.getProvision().getActor().get(0).getReference().getIdentifier().getValue());
+                                    obtenersol(consen.getPerformer().get(0).getIdentifier().getValue());
+                                    con = new Consen();
+                                    new CountDownTimer(500, 100) {
+
+                                        @Override
+                                        public void onTick(long arg0) {}
+                                        @Override
+                                        public void onFinish() { con = añadirhospital(consen); }
+                                    }.start();
                                     new CountDownTimer(500, 100) {
 
                                         @Override
@@ -137,7 +156,7 @@ public class CiudActivity extends AppCompatActivity {
 
                                         @Override
                                         public void onFinish() {
-                                            añadirconsen(consen);
+                                            añadirconsen(con);
                                         }
                                     }.start();
                                 }
@@ -173,14 +192,12 @@ public class CiudActivity extends AppCompatActivity {
 
             JSONArray extension = consentimiento.getJSONArray("extension");
 
-            consen.setUsudatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
-            consen.setUbidatos(new StringDt(extension.getJSONObject(1).getString("valueString")));
-            consen.setDatos(new StringDt(extension.getJSONObject(2).getString("valueString")));
-            consen.setAccion(new StringDt(extension.getJSONObject(3).getString("valueString")));
-            consen.setDuracion(new StringDt(extension.getJSONObject(4).getString("valueString")));
-            consen.setCond(new StringDt(extension.getJSONObject(5).getString("valueString")));
-            consen.setAviso(new BooleanDt(extension.getJSONObject(6).getBoolean("valueBoolean")));
+            consen.setDatos(new StringDt(extension.getJSONObject(0).getString("valueString")));
+            consen.setDuracion(new StringDt(extension.getJSONObject(1).getString("valueString")));
+            consen.setCond(new StringDt(extension.getJSONObject(2).getString("valueString")));
+            consen.setAviso(new BooleanDt(extension.getJSONObject(3).getBoolean("valueBoolean")));
 
+            /*
             Identifier identifier = new Identifier();
             identifier.setId(consentimiento.getJSONArray("identifier")
                     .getJSONObject(0).getString("id"));
@@ -189,6 +206,8 @@ public class CiudActivity extends AppCompatActivity {
             identifier.setValue(consentimiento.getJSONArray("identifier")
                     .getJSONObject(0).getString("value"));
             consen.addIdentifier(identifier);
+
+             */
 
             if(consentimiento.getString("status").equals("draft")) {
                 consen.setStatus(Consent.ConsentState.DRAFT);
@@ -204,6 +223,13 @@ public class CiudActivity extends AppCompatActivity {
             consen.setScope(new CodeableConcept().setText(consentimiento.getJSONObject("scope").getString("text")));
             consen.addCategory().setText(consentimiento.getJSONArray("category").getJSONObject(0).getString("text"));
 
+            Reference refprac = new Reference();
+            refprac.setReference(consentimiento.getJSONArray("performer").getJSONObject(0).getString("reference"));
+            refprac.setType(consentimiento.getJSONArray("performer").getJSONObject(0).getString("type"));
+            refprac.setIdentifier(new Identifier().setValue(consentimiento.getJSONArray("performer").getJSONObject(0)
+                    .getJSONObject("identifier").getString("value")));
+            consen.addPerformer(refprac);
+
             Reference reference = new Reference();
             reference.setReference(consentimiento.getJSONObject("patient").getString("reference"));
             reference.setType(consentimiento.getJSONObject("patient").getString("type"));
@@ -211,18 +237,51 @@ public class CiudActivity extends AppCompatActivity {
                     .getJSONObject("identifier").getString("value")));
             consen.setPatient(reference);
 
-            consen.setId(consentimiento.getString("id"));
+            CodeableConcept codeaccion = new CodeableConcept();
+            if(consentimiento.getJSONObject("provision").getJSONArray("action")
+                    .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("access")){
+                Coding cod = new Coding();
+                cod.setCode("access");
+                codeaccion.addCoding(cod);
+            } else {
+                if(consentimiento.getJSONObject("provision").getJSONArray("action")
+                        .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("use")){
+                    Coding cod = new Coding();
+                    cod.setCode("use");
+                    codeaccion.addCoding(cod);
+                } else {
+                    if (consentimiento.getJSONObject("provision").getJSONArray("action")
+                            .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("correct")){
+                        Coding cod = new Coding();
+                        cod.setCode("correct");
+                        codeaccion.addCoding(cod);
+                    } else {
+                        if (consentimiento.getJSONObject("provision").getJSONArray("action")
+                                .getJSONObject(0).getJSONArray("coding").getJSONObject(0).get("code").equals("disclose")){
+                            Coding cod = new Coding();
+                            cod.setCode("disclose");
+                            codeaccion.addCoding(cod);
+                        }
+                    }
+                }
+            }
 
-            /*
-            consen.setScope(new CodeableConcept().setText(consentimiento.getJSONObject("scope").getString("text")));
-            String cat = consentimiento.getJSONArray("category").getString(0);
-            consen.addCategory().setText(cat.substring(9,cat.length()-2));
-            consen.setPatient(new Reference().setReference(consentimiento.getJSONObject("patient").getString("reference")));
-            String usu = consentimiento.getJSONArray("performer").getString(0);
-            consen.addPerformer(new Reference().setReference(usu.substring(14,usu.length()-2)));
-            String ubi = consentimiento.getJSONArray("organization").getString(0);
-            consen.addOrganization(new Reference().setReference(ubi.substring(14,ubi.length()-2)));
-*/
+            Consent.provisionComponent provision = new Consent.provisionComponent();
+            provision.addAction(codeaccion);
+
+            Reference refusudatos = new Reference();
+            refusudatos.setReference("http://hapi.fhir.org/Practitioner");
+            refusudatos.setType("Practitioner");
+            refusudatos.setIdentifier(new Identifier().setValue(consentimiento.getJSONObject("provision")
+                    .getJSONArray("actor").getJSONObject(0).getJSONObject("reference")
+                    .getJSONObject("identifier").getString("value")));
+            Consent.provisionActorComponent actor = new Consent.provisionActorComponent();
+            actor.setReference(refusudatos);
+            provision.addActor(actor);
+
+            consen.setProvision(provision);
+
+            consen.setId(consentimiento.getString("id"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -230,18 +289,85 @@ public class CiudActivity extends AppCompatActivity {
         return consen;
     }
 
-    public void obteneragente(String agente){
+    public Consen añadirhospital(Consen consentimiento){
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/agente/acceder?contra=" + agente, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL2+usuario, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         dlg.dismiss();
                         try {
 
-                            JSONArray JSONnombre = response.getJSONArray("name");
-                            JSONObject objnombre = JSONnombre.getJSONObject(0);
-                            name = objnombre.getString("text");
+                            hosp = (String) response.get("hospital");
+                            consentimiento.getOrganizationFirstRep().setDisplay(hosp);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        VolleyLog.v("Response:%n %s", response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dlg.dismiss();
+                VolleyLog.e("Error: ", error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        "No se ha recibido respuesta", Toast.LENGTH_SHORT).show();
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 3,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // add the request object to the queue to be executed
+        Aplicacion.getInstance().getRequestQueue().add(request);
+
+        return consentimiento;
+    }
+
+    public void obtenerusuario(String agente){
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dlg.dismiss();
+                        try{
+
+                            usuario = response.getString("nombre");
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        VolleyLog.v("Response:%n %s", response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                dlg.dismiss();
+                VolleyLog.e("Error: ", error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        "No se ha recibido respuesta", Toast.LENGTH_SHORT).show();
+            }
+        });
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 3,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // add the request object to the queue to be executed
+        Aplicacion.getInstance().getRequestQueue().add(request);
+    }
+
+    public void obtenersol(String agente){
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dlg.dismiss();
+                        try{
+
+                            sol = response.getString("nombre");
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -285,7 +411,7 @@ public class CiudActivity extends AppCompatActivity {
         paramconsent.setMargins(10,50,10,0);
 
         TextView textViewsol = new TextView(this);
-        SpannableString solicitante = new SpannableString("   Solicitante: " + name);
+        SpannableString solicitante = new SpannableString("   Solicitante: " + sol);
         solicitante.setSpan(new UnderlineSpan(), 3, 15, 0);
         solicitante.setSpan(new StyleSpan(Typeface.BOLD), 0, solicitante.length(), 0);
         solicitante.setSpan(new AbsoluteSizeSpan(15, true),0, solicitante.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -294,7 +420,7 @@ public class CiudActivity extends AppCompatActivity {
         textViewsol.setPadding(10,10,10,0);
 
         TextView textViewusu = new TextView(this);
-        SpannableString usu = new SpannableString("   Usuario de datos: " + consentimiento.getUsudatos().getValue());
+        SpannableString usu = new SpannableString("   Usuario de datos: " + usuario);
         usu.setSpan(new UnderlineSpan(), 3, 20, 0);
         usu.setSpan(new StyleSpan(Typeface.BOLD), 0, usu.length(), 0);
         usu.setSpan(new AbsoluteSizeSpan(15, true),0, usu.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -312,7 +438,22 @@ public class CiudActivity extends AppCompatActivity {
         textViewdatos.setPadding(10,15,10,0);
 
         TextView textViewaccion = new TextView(this);
-        SpannableString accion = new SpannableString("   Acción a realizar: " + consentimiento.getAccion().getValue());
+        if(consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "access"){
+            action = "Acceso";
+        } else {
+            if(consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "use"){
+                action = "Lectura";
+            } else {
+                if (consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "correct"){
+                    action = "Modificación";
+                } else {
+                    if (consentimiento.getProvision().getAction().get(0).getCoding().get(0).getCode() == "disclose"){
+                        action = "Envío";
+                    }
+                }
+            }
+        }
+        SpannableString accion = new SpannableString("   Acción a realizar: " + action);
         accion.setSpan(new UnderlineSpan(), 3, 21, 0);
         accion.setSpan(new StyleSpan(Typeface.BOLD), 0, accion.length(), 0);
         accion.setSpan(new AbsoluteSizeSpan(15, true),0,accion.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -334,7 +475,8 @@ public class CiudActivity extends AppCompatActivity {
                 intent.putExtra("consentimiento", consentimiento);
                 intent.putExtra("tipo", "ciud");
                 intent.putExtra("acceso", dni);
-                intent.putExtra("agente", name);
+                intent.putExtra("sol", sol);
+                intent.putExtra("agente", usuario);
                 startActivity(intent);
             }
         });

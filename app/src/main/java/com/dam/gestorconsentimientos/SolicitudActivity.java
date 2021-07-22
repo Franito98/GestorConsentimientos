@@ -6,9 +6,12 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -19,6 +22,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Consent;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
@@ -26,6 +30,7 @@ import org.hl7.fhir.r4.model.UriType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import ca.uhn.fhir.model.primitive.BooleanDt;
@@ -36,7 +41,10 @@ import static com.dam.gestorconsentimientos.Aplicacion.ctx;
 public class SolicitudActivity extends AppCompatActivity {
 
     LinearLayout layoutciud;
-    EditText solicitante, usudatos, ubidatos, catdatos, datos, accion, ciud, motivo, duracion, condiciones;
+    EditText usudatos, ubidatos, catdatos, datos, ciud, motivo, duracion, condiciones;
+    Spinner accion;
+
+    String acselec;
 
     Consen consentimiento = new Consen();
 
@@ -46,7 +54,7 @@ public class SolicitudActivity extends AppCompatActivity {
 
     Intent intent;
     Bundle extra;
-    String contra;
+    String login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,16 +63,16 @@ public class SolicitudActivity extends AppCompatActivity {
 
         intent = getIntent();
         extra = intent.getExtras();
-        contra = extra.getString("contra");
+        login = extra.getString("login");
 
         layoutciud = (LinearLayout) findViewById(R.id.layoutciud);
 
-        solicitante = (EditText) findViewById(R.id.solicitante);
+        //solicitante = (EditText) findViewById(R.id.solicitante);
         usudatos = (EditText) findViewById(R.id.usuariodatos);
         ubidatos = (EditText) findViewById(R.id.ubidatos);
         catdatos = (EditText) findViewById(R.id.categoriadatos);
         datos = (EditText) findViewById(R.id.datos);
-        accion = (EditText) findViewById(R.id.accion);
+        accion = (Spinner) findViewById(R.id.acciones);
         ciud = (EditText) findViewById(R.id.ciud);
         motivo = (EditText) findViewById(R.id.motivo);
         duracion = (EditText) findViewById(R.id.duracion);
@@ -77,31 +85,60 @@ public class SolicitudActivity extends AppCompatActivity {
         {
             public void onClick(View v){
                 Intent intent2 = new Intent(SolicitudActivity.this, AgenteActivity.class);
-                intent2.putExtra("contra", contra);
+                intent2.putExtra("login", login);
                 startActivity(intent2);
+            }
+        });
+
+        ArrayList<String> actions = new ArrayList<>();
+        actions.add("Acceso");
+        actions.add("Lectura");
+        actions.add("Modificación");
+        actions.add("Envío");
+
+        ArrayAdapter adaptador = new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, actions);
+        accion.setAdapter(adaptador);
+
+        accion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                acselec = (String) accion.getAdapter().getItem(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
 
     public void crearsol(View v) {
 
-        final String URL = "http://192.168.1.108:8080/TFGREST/agente/solicitud/" + contra;
+        final String URL = "http://192.168.1.108:8080/TFGREST/agente/solicitud/" + login;
         final ProgressDialog dlg = ProgressDialog.show(this,
                 "Creando solicitud de consentimiento", "Por favor, espere...", true);
 
+        /*
         Identifier id = new Identifier();
         id.setId(solicitante.getText().toString());
-        id.setSystemElement(new UriType("http://localhost:8080/TFGREST/consentimiento/" + contra));
+        id.setSystemElement(new UriType("http://localhost:8080/TFGREST/consentimiento/" + login));
         id.setValue(contra);
         consentimiento.addIdentifier(id);
 
-        StringDt usuariodatos = new StringDt();
-        usuariodatos.setValueAsString(usudatos.getText().toString());
-        consentimiento.setUsudatos(usuariodatos);
+        Reference refprac = new Reference();
+        refprac.setReference("http://hapi.fhir.org/Practitioner");
+        refprac.setType("Practitioner");
+        refprac.setIdentifier(new Identifier().setValue(solicitante.getText().toString()));
+        consentimiento.addPerformer(refprac);
 
-        StringDt hospital = new StringDt();
-        hospital.setValueAsString(ubidatos.getText().toString());
-        consentimiento.setUbidatos(hospital);
+         */
+
+        Reference refubi = new Reference();
+        refubi.setReference("http://hapi.fhir.org/Organization");
+        refubi.setType("Organization");
+        refubi.setIdentifier(new Identifier().setValue(login));
+        refubi.setDisplay(ubidatos.getText().toString());
+        consentimiento.addOrganization(refubi);
 
         consentimiento.addCategory().setText(catdatos.getText().toString());
 
@@ -109,9 +146,47 @@ public class SolicitudActivity extends AppCompatActivity {
         datosmanejar.setValueAsString(datos.getText().toString());
         consentimiento.setDatos(datosmanejar);
 
-        StringDt accionrealizar = new StringDt();
-        accionrealizar.setValueAsString(accion.getText().toString());
-        consentimiento.setAccion(accionrealizar);
+        Reference refusudatos = new Reference();
+        refusudatos.setReference("http://hapi.fhir.org/Practitioner");
+        refusudatos.setType("Practitioner");
+        refusudatos.setIdentifier(new Identifier().setValue(usudatos.getText().toString()));
+        Consent.provisionActorComponent actor = new Consent.provisionActorComponent();
+        actor.setReference(refusudatos);
+
+
+        Consent.provisionComponent provision = new Consent.provisionComponent();
+        provision.addActor(actor);
+
+        CodeableConcept codeaccion = new CodeableConcept();
+        if(acselec == "Acceso"){
+            Coding cod = new Coding();
+            cod.setCode("access");
+            codeaccion.addCoding(cod);
+            provision.addAction(codeaccion);
+        } else {
+            if(acselec == "Lectura"){
+                Coding cod = new Coding();
+                cod.setCode("use");
+                codeaccion.addCoding(cod);
+                provision.addAction(codeaccion);
+            } else {
+                if (acselec == "Modificación") {
+                    Coding cod = new Coding();
+                    cod.setCode("correct");
+                    codeaccion.addCoding(cod);
+                    provision.addAction(codeaccion);
+                } else {
+                    if (acselec == "Envío") {
+                        Coding cod = new Coding();
+                        cod.setCode("disclose");
+                        codeaccion.addCoding(cod);
+                        provision.addAction(codeaccion);
+                    }
+                }
+            }
+        }
+
+        consentimiento.setProvision(provision);
 
         if (ciud.getText().toString().isEmpty()) {
             consentimiento.setPatient(new Reference("todos"));
@@ -150,29 +225,30 @@ public class SolicitudActivity extends AppCompatActivity {
                         code = response.getJSONObject("codigo");
                         Integer cod = code.getInt("valueInteger");
 
+                        /*
                         if (cod == 600) {
                             Toast.makeText(getApplicationContext(),
                                     "Nombre del solicitante incorrecto", Toast.LENGTH_SHORT).show();
                         } else {
-                            if (cod == 500) {
+                         */
+                        if (cod == 500) {
+                            Toast.makeText(getApplicationContext(),
+                                    "Error al crear los consentimientos para todos los ciudadanos",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (cod == 400) {
                                 Toast.makeText(getApplicationContext(),
-                                        "Error al crear los consentimientos para todos los ciudadanos",
-                                        Toast.LENGTH_SHORT).show();
+                                        "Ciudadano elegido inexistente", Toast.LENGTH_SHORT).show();
                             } else {
-                                if (cod == 400) {
+                                if (cod == 100) {
                                     Toast.makeText(getApplicationContext(),
-                                            "Ciudadano elegido inexistente", Toast.LENGTH_SHORT).show();
+                                            "Ciudadano elegido no registrado", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    if (cod == 100) {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Ciudadano elegido no registrado", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(getApplicationContext(),
-                                                "Consentimiento/s creado correctamente", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(SolicitudActivity.this, AgenteActivity.class);
-                                        intent.putExtra("contra", contra);
-                                        startActivity(intent);
-                                    }
+                                    Toast.makeText(getApplicationContext(),
+                                            "Consentimiento/s creado correctamente", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(SolicitudActivity.this, AgenteActivity.class);
+                                    intent.putExtra("login", login);
+                                    startActivity(intent);
                                 }
                             }
                         }
