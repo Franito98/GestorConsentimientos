@@ -149,7 +149,7 @@ public class InfosolActivity extends AppCompatActivity {
         }
 
         if(consentimiento.getAviso().getValue() == true) {
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.108:8080/TFGREST/ciud/consentimiento/actualizaralerta", objeto,
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.54:8080/TFGREST/ciud/consentimiento/actualizaralerta", objeto,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -204,7 +204,7 @@ public class InfosolActivity extends AppCompatActivity {
         aceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.108:8080/TFGREST/ciud/consentimiento/modificar?estado=active", objeto,
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.54:8080/TFGREST/ciud/consentimiento/modificar?estado=active", objeto,
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
@@ -257,7 +257,7 @@ public class InfosolActivity extends AppCompatActivity {
         rechazar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.108:8080/TFGREST/ciud/consentimiento/modificar?estado=rejected", objeto,
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, "http://192.168.1.54:8080/TFGREST/ciud/consentimiento/modificar?estado=rejected", objeto,
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
@@ -325,7 +325,7 @@ public class InfosolActivity extends AppCompatActivity {
 
     public void onClickizq (View view) {
 
-        String URL = "http://192.168.1.108:8080/TFGREST/agente/consentimiento/eliminar";
+        String URL = "http://192.168.1.54:8080/TFGREST/agente/consentimiento/eliminar";
         ProgressDialog dlg = ProgressDialog.show(this,
                 "Eliminando consentimiento",
                 "Por favor, espere...", true);

@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void peticion_REST(View view) {
-        final String URL = "http://192.168.1.108:8080/TFGREST/" + tipo + "/acceder?" + pw + "=" + password.getText().toString();
+        final String URL = "http://192.168.1.54:8080/TFGREST/" + tipo + "/acceder?" + pw + "=" + password.getText().toString();
         final ProgressDialog dlg = ProgressDialog.show(
                 this,
                 "Consultando datos",

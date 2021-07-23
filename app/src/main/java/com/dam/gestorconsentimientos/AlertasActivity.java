@@ -56,7 +56,7 @@ public class AlertasActivity extends AppCompatActivity {
     Boolean alerta = true;
 
     String URL;
-    String URL2 = "http://192.168.1.108:8080/TFGREST/agente/hospital/";
+    String URL2 = "http://192.168.1.54:8080/TFGREST/agente/hospital/";
     ProgressDialog dlg;
 
     String hosp;
@@ -85,7 +85,7 @@ public class AlertasActivity extends AppCompatActivity {
             }
         });
 
-        URL = "http://192.168.1.108:8080/TFGREST/ciud/" + dni + "/alertas";
+        URL = "http://192.168.1.54:8080/TFGREST/ciud/" + dni + "/alertas";
         dlg = ProgressDialog.show(this,
                 "Obteniendo avisos de consentimientos",
                 "Por favor, espere...", true);
@@ -287,7 +287,7 @@ public class AlertasActivity extends AppCompatActivity {
 
     public void obtenerusuario(String agente){
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.54:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -320,7 +320,7 @@ public class AlertasActivity extends AppCompatActivity {
 
     public void obtenersol(String agente){
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.54:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

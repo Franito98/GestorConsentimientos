@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void register(View v) {
-        final String URL1 = "http://192.168.1.108:8080/TFGREST/" + tipo + "/reg/" + password.getText().toString();
+        final String URL1 = "http://192.168.1.54:8080/TFGREST/" + tipo + "/reg/" + password.getText().toString();
         dlg = ProgressDialog.show(
                 this,
                 "Actualizando datos",
@@ -273,7 +273,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void registerhospital() {
-        final String URL2 = "http://192.168.1.108:8080/TFGREST/" + tipo + "/reg/hospital/" + password.getText().toString();
+        final String URL2 = "http://192.168.1.54:8080/TFGREST/" + tipo + "/reg/hospital/" + password.getText().toString();
 
         Identifier idhosp = new Identifier();
         idhosp.setId(dni.getText().toString());
@@ -329,7 +329,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void registerdepart() {
-        final String URL3 = "http://192.168.1.108:8080/TFGREST/" + tipo + "/reg/depart/" + password.getText().toString();
+        final String URL3 = "http://192.168.1.54:8080/TFGREST/" + tipo + "/reg/depart/" + password.getText().toString();
 
         Identifier idrol = new Identifier();
         idrol.setId(dni.getText().toString());

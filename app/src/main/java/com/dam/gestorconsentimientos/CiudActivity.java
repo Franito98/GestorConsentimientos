@@ -57,7 +57,7 @@ public class CiudActivity extends AppCompatActivity {
     String agente;
 
     String URL;
-    String URL2 = "http://192.168.1.108:8080/TFGREST/agente/hospital/";
+    String URL2 = "http://192.168.1.54:8080/TFGREST/agente/hospital/";
     ProgressDialog dlg;
 
     String hosp;
@@ -97,21 +97,21 @@ public class CiudActivity extends AppCompatActivity {
         switch (view.getId()) {
 
             case R.id.otorgados:
-                URL = "http://192.168.1.108:8080/TFGREST/ciud/" + dni + "?estado=active";
+                URL = "http://192.168.1.54:8080/TFGREST/ciud/" + dni + "?estado=active";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos aceptados",
                         "Por favor, espere...", true);
                 break;
 
             case R.id.pendientes:
-                URL = "http://192.168.1.108:8080/TFGREST/ciud/" + dni + "?estado=draft";
+                URL = "http://192.168.1.54:8080/TFGREST/ciud/" + dni + "?estado=draft";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos pendientes",
                         "Por favor, espere...", true);
                 break;
 
             case R.id.rechazados:
-                URL = "http://192.168.1.108:8080/TFGREST/ciud/" + dni + "?estado=rejected";
+                URL = "http://192.168.1.54:8080/TFGREST/ciud/" + dni + "?estado=rejected";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos rechazados",
                         "Por favor, espere...", true);
@@ -196,18 +196,6 @@ public class CiudActivity extends AppCompatActivity {
             consen.setDuracion(new StringDt(extension.getJSONObject(1).getString("valueString")));
             consen.setCond(new StringDt(extension.getJSONObject(2).getString("valueString")));
             consen.setAviso(new BooleanDt(extension.getJSONObject(3).getBoolean("valueBoolean")));
-
-            /*
-            Identifier identifier = new Identifier();
-            identifier.setId(consentimiento.getJSONArray("identifier")
-                    .getJSONObject(0).getString("id"));
-            identifier.setSystem(consentimiento.getJSONArray("identifier")
-                    .getJSONObject(0).getString("system"));
-            identifier.setValue(consentimiento.getJSONArray("identifier")
-                    .getJSONObject(0).getString("value"));
-            consen.addIdentifier(identifier);
-
-             */
 
             if(consentimiento.getString("status").equals("draft")) {
                 consen.setStatus(Consent.ConsentState.DRAFT);
@@ -327,7 +315,7 @@ public class CiudActivity extends AppCompatActivity {
 
     public void obtenerusuario(String agente){
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.54:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -360,7 +348,7 @@ public class CiudActivity extends AppCompatActivity {
 
     public void obtenersol(String agente){
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.108:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "http://192.168.1.54:8080/TFGREST/ciud/solicitante?dni=" + agente, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {

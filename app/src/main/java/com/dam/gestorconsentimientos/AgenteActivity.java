@@ -60,7 +60,7 @@ public class AgenteActivity extends AppCompatActivity {
     String login;
 
     String URL;
-    String URL2 = "http://192.168.1.108:8080/TFGREST/agente/hospital/";
+    String URL2 = "http://192.168.1.54:8080/TFGREST/agente/hospital/";
     ProgressDialog dlg;
 
     String hosp;
@@ -107,21 +107,21 @@ public class AgenteActivity extends AppCompatActivity {
         switch (view.getId()) {
 
             case R.id.otorgados:
-                URL = "http://192.168.1.108:8080/TFGREST/agente/" + login + "?estado=active";
+                URL = "http://192.168.1.54:8080/TFGREST/agente/" + login + "?estado=active";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos aceptados",
                         "Por favor, espere...", true);
                 break;
 
             case R.id.pendientes:
-                URL = "http://192.168.1.108:8080/TFGREST/agente/" + login + "?estado=draft";
+                URL = "http://192.168.1.54:8080/TFGREST/agente/" + login + "?estado=draft";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos pendientes",
                         "Por favor, espere...", true);
                 break;
 
             case R.id.rechazados:
-                URL = "http://192.168.1.108:8080/TFGREST/agente/" + login + "?estado=rejected";
+                URL = "http://192.168.1.54:8080/TFGREST/agente/" + login + "?estado=rejected";
                 dlg = ProgressDialog.show(this,
                         "Obteniendo consentimientos rechazados",
                         "Por favor, espere...", true);
@@ -269,14 +269,6 @@ public class AgenteActivity extends AppCompatActivity {
             consen.setProvision(provision);
 
             consen.setId(consentimiento.getString("id"));
-
-            //String cat = consentimiento.getJSONArray("category").getJSONObject(0).getString("text");
-            //consen.addCategory().setText(cat.substring(9,cat.length()-2));
-            //consen.setPatient(new Reference().setReference(consentimiento.getJSONObject("patient").getString("reference")));
-            //String usu = consentimiento.getJSONArray("performer").getString(0);
-            //consen.addPerformer(new Reference().setReference(usu.substring(14,usu.length()-2)));
-            //String ubi = consentimiento.getJSONArray("organization").getString(0);
-            //consen.addOrganization(new Reference().setReference(ubi.substring(14,ubi.length()-2)));
 
         } catch (JSONException e) {
             e.printStackTrace();

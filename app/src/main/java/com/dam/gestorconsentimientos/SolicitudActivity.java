@@ -114,7 +114,7 @@ public class SolicitudActivity extends AppCompatActivity {
 
     public void crearsol(View v) {
 
-        final String URL = "http://192.168.1.108:8080/TFGREST/agente/solicitud/" + login;
+        final String URL = "http://192.168.1.54:8080/TFGREST/agente/solicitud/" + login;
         final ProgressDialog dlg = ProgressDialog.show(this,
                 "Creando solicitud de consentimiento", "Por favor, espere...", true);
 
@@ -225,12 +225,6 @@ public class SolicitudActivity extends AppCompatActivity {
                         code = response.getJSONObject("codigo");
                         Integer cod = code.getInt("valueInteger");
 
-                        /*
-                        if (cod == 600) {
-                            Toast.makeText(getApplicationContext(),
-                                    "Nombre del solicitante incorrecto", Toast.LENGTH_SHORT).show();
-                        } else {
-                         */
                         if (cod == 500) {
                             Toast.makeText(getApplicationContext(),
                                     "Error al crear los consentimientos para todos los ciudadanos",
